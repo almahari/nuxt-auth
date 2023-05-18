@@ -12,7 +12,11 @@ const signIn = async (credentials, signInOptions, signInParams) => {
   const headers = new Headers(signInOptions?.headers ?? {});
   if (config.globalHeaders) {
     Object.entries(config.globalHeaders).forEach(([key, value]) => {
-      headers.append(key, value + "");
+      let headerValue = value + "";
+      if (typeof value === "function") {
+        headerValue = value() + "";
+      }
+      headers.append(key, headerValue);
     });
   }
   const response = await _fetch(nuxt, path, {
@@ -46,7 +50,11 @@ const signOut = async (signOutOptions) => {
   const headers = new Headers(signOutOptions?.headers || {});
   if (config.globalHeaders) {
     Object.entries(config.globalHeaders).forEach(([key, value]) => {
-      headers.append(key, value + "");
+      let headerValue = value + "";
+      if (typeof value === "function") {
+        headerValue = value() + "";
+      }
+      headers.append(key, headerValue);
     });
   }
   headers.append(config?.token.headerName, token.value ?? "");
@@ -71,7 +79,11 @@ const getSession = async (getSessionOptions) => {
   const headers = new Headers(getSessionOptions?.headers || {});
   if (config.globalHeaders) {
     Object.entries(config.globalHeaders).forEach(([key, value]) => {
-      headers.append(key, value + "");
+      let headerValue = value + "";
+      if (typeof value === "function") {
+        headerValue = value() + "";
+      }
+      headers.append(key, headerValue);
     });
   }
   headers.append(config.token.headerName, token.value ?? "");

@@ -20,7 +20,11 @@ const signIn: SignInFunc<Credentials, any> = async (credentials, signInOptions, 
 
   if (config.globalHeaders) {
     Object.entries(config.globalHeaders).forEach(([key, value]) => {
-      headers.append(key, value + '')
+      let headerValue : string = value + ''
+      if (typeof value === 'function') {
+        headerValue = value() + ''
+      }
+      headers.append(key, headerValue)
     })
   }
 
@@ -61,7 +65,11 @@ const signOut: SignOutFunc = async (signOutOptions) => {
   const headers = new Headers((signOutOptions?.headers || {})as HeadersInit)
   if (config.globalHeaders) {
     Object.entries(config.globalHeaders).forEach(([key, value]) => {
-      headers.append(key, value + '')
+      let headerValue : string = value + ''
+      if (typeof value === 'function') {
+        headerValue = value() + ''
+      }
+      headers.append(key, headerValue)
     })
   }
 
@@ -96,7 +104,11 @@ const getSession: GetSessionFunc<SessionData | null | void> = async (getSessionO
   const headers = new Headers((getSessionOptions?.headers || {}) as HeadersInit)
   if (config.globalHeaders) {
     Object.entries(config.globalHeaders).forEach(([key, value]) => {
-      headers.append(key, value + '')
+      let headerValue : string = value + ''
+      if (typeof value === 'function') {
+        headerValue = value() + ''
+      }
+      headers.append(key, headerValue)
     })
   }
 
