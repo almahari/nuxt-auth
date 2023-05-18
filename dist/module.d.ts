@@ -165,7 +165,7 @@ type ProviderLocal = {
      * @advanced_array_example { id: 'string', email: 'string', name: 'string', role: 'admin | guest | account', subscriptions: "{ id: number, status: 'ACTIVE' | 'INACTIVE' }[]" }
      */
     sessionDataType?: SessionDataObject;
-    globalHeaders?: Headers;
+    globalHeaders?: {};
 };
 /**
  * Configuration for the `authjs`-provider.
