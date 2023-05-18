@@ -1,14 +1,6 @@
-import * as _nuxt_schema from '@nuxt/schema';
+import type { Ref, ComputedRef } from 'vue';
 import { RouterMethod } from 'h3';
-import { BuiltInProviderType } from 'next-auth/providers';
-
-/**
- * Utility type that allows autocompletion for a mix of literal, primitiva and non-primitive values.
- * @source https://github.com/microsoft/TypeScript/issues/29729#issuecomment-832522611
- */
-type LiteralUnion<T extends U, U = string> = T | (U & Record<never, never>);
-type SupportedProviders = LiteralUnion<BuiltInProviderType> | undefined;
-
+import { SupportedProviders } from './composables/authjs/useAuth';
 /**
  * Configuration for the global application-side authentication-middleware.
  */
@@ -44,13 +36,13 @@ interface GlobalMiddlewareOptions {
 }
 type DataObjectPrimitives = 'string' | 'number' | 'boolean' | 'any' | 'undefined' | 'function' | 'null';
 type DataObjectArray = `${string}[]`;
-type SessionDataObject = {
+export type SessionDataObject = {
     [key: string]: Omit<string, DataObjectPrimitives | DataObjectArray> | SessionDataObject;
 };
 /**
  * Available `nuxt-auth` authentication providers.
  */
-type SupportedAuthProviders = 'authjs' | 'local';
+export type SupportedAuthProviders = 'authjs' | 'local';
 /**
  * Configuration for the `local`-provider.
  */
@@ -170,7 +162,7 @@ type ProviderLocal = {
 /**
  * Configuration for the `authjs`-provider.
  */
-type ProviderAuthjs = {
+export type ProviderAuthjs = {
     /**
      * Uses the `authjs` provider to facilitate autnetication. Currently, two providers exclusive are supported:
      * - `authjs`: `next-auth` / `auth.js` based OAuth, Magic URL, Credential provider for non-static applications
@@ -201,7 +193,7 @@ type ProviderAuthjs = {
      */
     addDefaultCallbackUrl?: boolean | string;
 };
-type AuthProviders = ProviderAuthjs | ProviderLocal;
+export type AuthProviders = ProviderAuthjs | ProviderLocal;
 /**
  * Configuration for the application-side session.
  */
@@ -229,7 +221,7 @@ type SessionConfig = {
 /**
  * Configuration for the whole module.
  */
-interface ModuleOptions {
+export interface ModuleOptions {
     /**
      * Whether the module is enabled at all
      */
@@ -293,7 +285,52 @@ interface ModuleOptions {
      */
     globalAppMiddleware?: GlobalMiddlewareOptions | boolean;
 }
-
-declare const _default: _nuxt_schema.NuxtModule<ModuleOptions>;
-
-export { _default as default };
+export type SessionLastRefreshedAt = Date | undefined;
+export type SessionStatus = 'authenticated' | 'unauthenticated' | 'loading';
+type WrappedSessionData<SessionData> = Ref<SessionData | null | undefined>;
+export interface CommonUseAuthReturn<SignIn, SignOut, GetSession, SessionData> {
+    data: Readonly<WrappedSessionData<SessionData>>;
+    lastRefreshedAt: Readonly<Ref<SessionLastRefreshedAt>>;
+    status: ComputedRef<SessionStatus>;
+    signIn: SignIn;
+    signOut: SignOut;
+    getSession: GetSession;
+}
+export interface CommonUseAuthStateReturn<SessionData> {
+    data: WrappedSessionData<SessionData>;
+    loading: Ref<boolean>;
+    lastRefreshedAt: Ref<SessionLastRefreshedAt>;
+    status: ComputedRef<SessionStatus>;
+    _internal: {
+        baseURL: string;
+    };
+}
+export interface SecondarySignInOptions extends Record<string, unknown> {
+    /**
+     * Specify to which URL the user will be redirected after signing in. Defaults to the page URL the sign-in is initiated from.
+     *
+     * @default undefined Inferred from the current route
+     */
+    callbackUrl?: string;
+    /** Whether to redirect users after the method succeeded.
+     *
+     * @default true
+     */
+    redirect?: boolean;
+    headers?: Headers;
+}
+export interface SignOutOptions {
+    callbackUrl?: string;
+    redirect?: boolean;
+    headers?: Headers;
+}
+export type GetSessionOptions = Partial<{
+    required?: boolean;
+    callbackUrl?: string;
+    onUnauthenticated?: () => void;
+    headers?: Headers;
+}>;
+export type SignOutFunc = (options?: SignOutOptions) => Promise<any>;
+export type GetSessionFunc<SessionData> = (getSessionOptions?: GetSessionOptions) => Promise<SessionData>;
+export type SignInFunc<PrimarySignInOptions, SignInResult> = (primaryOptions: PrimarySignInOptions, signInOptions?: SecondarySignInOptions, paramsOptions?: Record<string, string>) => Promise<SignInResult>;
+export {};
